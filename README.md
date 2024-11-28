@@ -1,6 +1,6 @@
 # SpaceCases Assets
 
-This repository contains scripts and static assets used for generating and serving item skins and related data for SpaceCases.
+This repository contains static assets and scripts for generating assets and item data for SpaceCases.
 
 ## Overview
 
