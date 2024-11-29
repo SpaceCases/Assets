@@ -28,9 +28,10 @@ def aggregate_skinport_prices(prices: dict[str, list[int]]):
     except FileNotFoundError:
         with open("user_agents.txt") as f:
             user_agents = [line.strip() for line in f.readlines()]
+            headers = {'User-Agent': random.choice(user_agents), 'Accept-Encoding': 'br, gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive'}
         response = requests.get(
             "https://api.skinport.com/v1/items",
-            headers={"Accept-Encoding": "br", "User-Agent": random.choice(user_agents)},
+            headers=headers,
         )
         response.raise_for_status()
         skinport_item_data = response.json()
