@@ -53,6 +53,7 @@ def run(api_data) -> dict[str, Skin]:
                 description,
                 os.path.join(
                     ASSETS_DOMAIN,
+                    "generated",
                     "images",
                     "unformatted",
                     f"{full_unformatted_name}.png",
@@ -77,6 +78,7 @@ def run(api_data) -> dict[str, Skin]:
                 stattrak_skin_datum.formatted_name = stattrak_full_formatted_name
                 stattrak_skin_datum.image_url = os.path.join(
                     ASSETS_DOMAIN,
+                    "generated",
                     "images",
                     "unformatted",
                     f"{stattrak_full_unformatted_name}.png",
@@ -91,6 +93,7 @@ def run(api_data) -> dict[str, Skin]:
                 souvenir_skin_datum.formatted_name = souvenir_full_formatted_name
                 souvenir_skin_datum.image_url = os.path.join(
                     ASSETS_DOMAIN,
+                    "generated",
                     "images",
                     "unformatted",
                     f"{souvenir_full_unformatted_name}.png",
