@@ -12,10 +12,27 @@ from PIL import Image, ImageOps
 from io import BytesIO
 from spacecases_common import (
     remove_skin_name_formatting,
-    Condition,
 )
 from constants import OUTPUT_DIRECTORY, LOG_DIRECTORY, VANILLA_KNIVES
 from util import get_all_conditions_for_float_range
+from enum import IntEnum
+
+
+class Condition(IntEnum):
+    FACTORY_NEW = 0
+    MINIMAL_WEAR = 1
+    FIELD_TESTED = 2
+    WELL_WORN = 3
+    BATTLE_SCARRED = 4
+
+    def __str__(self):
+        return [
+            "Factory New",
+            "Minimal Wear",
+            "Field-Tested",
+            "Well-Worn",
+            "Battle-Scarred",
+        ][self.value]
 
 
 CONDITION_IDX_TO_IMAGE_IDX = [0, 0, 1, 1, 2]
