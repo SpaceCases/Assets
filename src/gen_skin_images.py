@@ -12,10 +12,10 @@ from PIL import Image, ImageOps
 from io import BytesIO
 from spacecases_common import (
     remove_skin_name_formatting,
-    get_all_conditions_for_float_range,
     Condition,
 )
 from constants import OUTPUT_DIRECTORY, LOG_DIRECTORY, VANILLA_KNIVES
+from util import get_all_conditions_for_float_range
 
 
 CONDITION_IDX_TO_IMAGE_IDX = [0, 0, 1, 1, 2]
