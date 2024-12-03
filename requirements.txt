@@ -1,5 +1,7 @@
-requests
-pillow
 spacecases-common
-brotlipy
+requests
 types-requests
+pillow
+brotlipy
+mypy
+ruff

@@ -11,7 +11,8 @@ from datetime import datetime
 from PIL import Image, ImageOps
 from io import BytesIO
 from spacecases_common import (
-    remove_skin_name_formatting, )
+    remove_skin_name_formatting,
+)
 from constants import OUTPUT_DIRECTORY, LOG_DIRECTORY, VANILLA_KNIVES
 from util import get_all_conditions_for_float_range, Condition
 
@@ -20,10 +21,10 @@ CONDITION_IDX_TO_IMAGE_IDX = [0, 0, 1, 1, 2]
 
 
 def create_skin_symlink(condition_image: str, symlink_name: str):
-    source = os.path.join(OUTPUT_DIRECTORY, "images", "raw",
-                          f"{condition_image}.png")
-    destination = os.path.join(OUTPUT_DIRECTORY, "images", "unformatted",
-                               f"{symlink_name}.png")
+    source = os.path.join(OUTPUT_DIRECTORY, "images", "raw", f"{condition_image}.png")
+    destination = os.path.join(
+        OUTPUT_DIRECTORY, "images", "unformatted", f"{symlink_name}.png"
+    )
     relative_source = os.path.relpath(source, os.path.dirname(destination))
     os.symlink(relative_source, destination)
 
@@ -42,8 +43,9 @@ def make_safe_request(url: str) -> requests.Response:
     return r
 
 
-def process_normal_skin(name: str, images, skin_datum,
-                        available_conditions: set[Condition]):
+def process_normal_skin(
+    name: str, images, skin_datum, available_conditions: set[Condition]
+):
     logging.info(f"Processing skin: {name}")
     unformatted_name = remove_skin_name_formatting(name)
     for idx, conditions in [
@@ -55,23 +57,24 @@ def process_normal_skin(name: str, images, skin_datum,
             if condition in available_conditions:
                 if name == "MP5-SD | Lab Rats":
                     image_bytes = make_safe_request(
-                        images[f"Souvenir {name} ({condition})"]).content
+                        images[f"Souvenir {name} ({condition})"]
+                    ).content
                 else:
                     image_bytes = make_safe_request(
-                        images[f"{name} ({condition})"]).content
+                        images[f"{name} ({condition})"]
+                    ).content
                 save_skin_image(f"{unformatted_name}{idx}", image_bytes)
                 if skin_datum["stattrak"]:
-                    save_skin_image(f"stattrak{unformatted_name}{idx}",
-                                    image_bytes)
+                    save_skin_image(f"stattrak{unformatted_name}{idx}", image_bytes)
                 if skin_datum["souvenir"]:
-                    save_skin_image(f"souvenir{unformatted_name}{idx}",
-                                    image_bytes)
+                    save_skin_image(f"souvenir{unformatted_name}{idx}", image_bytes)
                 break
     for condition in available_conditions:
         idx = CONDITION_IDX_TO_IMAGE_IDX[condition.value]
         unformatted_condition = remove_skin_name_formatting(str(condition))
-        create_skin_symlink(f"{unformatted_name}{idx}",
-                            f"{unformatted_name}{unformatted_condition}")
+        create_skin_symlink(
+            f"{unformatted_name}{idx}", f"{unformatted_name}{unformatted_condition}"
+        )
         if skin_datum["stattrak"]:
             create_skin_symlink(
                 f"stattrak{unformatted_name}{idx}",
@@ -84,8 +87,9 @@ def process_normal_skin(name: str, images, skin_datum,
             )
 
 
-def process_doppler_skin(name: str, images, skin_datum,
-                         available_conditions: set[Condition]):
+def process_doppler_skin(
+    name: str, images, skin_datum, available_conditions: set[Condition]
+):
     logging.info(f"Processing doppler skin: {name} - {skin_datum['phase']}")
     unformatted_name = remove_skin_name_formatting(name)
     unformatted_phase = remove_skin_name_formatting(skin_datum["phase"])
@@ -99,8 +103,9 @@ def process_doppler_skin(name: str, images, skin_datum,
                 image_bytes = make_safe_request(
                     images[f"{name} ({condition}) - {skin_datum['phase']}"]
                 ).content
-                save_skin_image(f"{unformatted_name}{unformatted_phase}{idx}",
-                                image_bytes)
+                save_skin_image(
+                    f"{unformatted_name}{unformatted_phase}{idx}", image_bytes
+                )
                 if skin_datum["stattrak"]:
                     save_skin_image(
                         f"stattrak{unformatted_name}{unformatted_phase}{idx}",
@@ -145,8 +150,7 @@ def process_vanilla_knife(name: str, images):
         unformatted_condition = remove_skin_name_formatting(str(condition))
         full_name = f"{unformatted_name}{unformatted_condition}"
         create_skin_symlink(unformatted_name, full_name)
-        create_skin_symlink(f"stattrak{unformatted_name}",
-                            f"stattrak{full_name}")
+        create_skin_symlink(f"stattrak{unformatted_name}", f"stattrak{full_name}")
 
 
 def save_skin_image(name: str, bytes: bytes):
@@ -177,17 +181,19 @@ def run(skin_data, images):
             continue
 
         available_conditions = set(
-            get_all_conditions_for_float_range(skin_datum["min_float"],
-                                               skin_datum["max_float"]))
+            get_all_conditions_for_float_range(
+                skin_datum["min_float"], skin_datum["max_float"]
+            )
+        )
 
         # Doppler skins handled seperately
         if "Doppler" in formatted_name:
-            process_doppler_skin(formatted_name, images, skin_datum,
-                                 available_conditions)
+            process_doppler_skin(
+                formatted_name, images, skin_datum, available_conditions
+            )
             continue
 
-        process_normal_skin(formatted_name, images, skin_datum,
-                            available_conditions)
+        process_normal_skin(formatted_name, images, skin_datum, available_conditions)
 
 
 if __name__ == "__main__":
@@ -209,7 +215,8 @@ if __name__ == "__main__":
     )
 
     grouped_skin_data = requests.get(
-        "https://bymykel.github.io/CSGO-API/api/en/skins.json").json()
+        "https://bymykel.github.io/CSGO-API/api/en/skins.json"
+    ).json()
     ungrouped_skin_data = requests.get(
         "https://bymykel.github.io/CSGO-API/api/en/skins_not_grouped.json"
     ).json()

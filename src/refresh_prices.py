@@ -79,8 +79,7 @@ if __name__ == "__main__":
 
     # aggregate all prices from different sources
     prices: dict[str, list[int]] = {
-        datum["formatted_name"]: []
-        for datum in skin_data.values()
+        datum["formatted_name"]: [] for datum in skin_data.values()
     }
     aggregate_skinport_prices(prices)
 
@@ -96,7 +95,7 @@ if __name__ == "__main__":
         skin_data[unformatted_name]["price"] = price
 
     # write back to skin_data.json
-    with open(os.path.join(OUTPUT_DIRECTORY, "skin_data.json"),
-              "w",
-              encoding="utf-8") as f:
+    with open(
+        os.path.join(OUTPUT_DIRECTORY, "skin_data.json"), "w", encoding="utf-8"
+    ) as f:
         json.dump(skin_data, f, indent=4, ensure_ascii=False)
