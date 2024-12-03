@@ -1,14 +1,16 @@
 """
-Aggregate all skin data into a json file, including price field but set to zero
+Aggregate all CS2 skin data into a json file, including price field but set to zero.
 """
 
 import os
 import re
+import sys
 import json
 import requests
+import argparse
 import dataclasses
 from dataclasses import asdict
-from constants import OUTPUT_DIRECTORY, ASSETS_DOMAIN
+from constants import OUTPUT_DIRECTORY, DEFAULT_ASSET_DOMAIN
 from spacecases_common import (
     remove_skin_name_formatting,
     Skin,
@@ -16,7 +18,7 @@ from spacecases_common import (
 from util import get_all_conditions_for_float_range
 
 
-def run(api_data) -> dict[str, Skin]:
+def run(api_data, asset_domain: str) -> dict[str, Skin]:
     result = {}
     for datum in api_data:
         # extract information
@@ -49,7 +51,7 @@ def run(api_data) -> dict[str, Skin]:
                 full_formatted_name,
                 description,
                 os.path.join(
-                    ASSETS_DOMAIN,
+                    asset_domain,
                     "generated",
                     "images",
                     "unformatted",
@@ -76,7 +78,7 @@ def run(api_data) -> dict[str, Skin]:
                 stattrak_skin_datum = dataclasses.replace(skin_datum)
                 stattrak_skin_datum.formatted_name = stattrak_full_formatted_name
                 stattrak_skin_datum.image_url = os.path.join(
-                    ASSETS_DOMAIN,
+                    asset_domain,
                     "generated",
                     "images",
                     "unformatted",
@@ -92,7 +94,7 @@ def run(api_data) -> dict[str, Skin]:
                 souvenir_skin_datum = dataclasses.replace(skin_datum)
                 souvenir_skin_datum.formatted_name = souvenir_full_formatted_name
                 souvenir_skin_datum.image_url = os.path.join(
-                    ASSETS_DOMAIN,
+                    asset_domain,
                     "generated",
                     "images",
                     "unformatted",
@@ -103,11 +105,26 @@ def run(api_data) -> dict[str, Skin]:
 
 
 if __name__ == "__main__":
+    # argument parsing
+    parser = argparse.ArgumentParser(
+        prog="get_skin_data",
+        description=sys.modules[__name__].__doc__,
+        epilog="Report bugs to https://github.com/SpaceCases/Assets/issues",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument(
+        "-d", "--domain", default=DEFAULT_ASSET_DOMAIN, help="asset domain URL"
+    )
+    args = parser.parse_args()
+    # folder structure
     os.makedirs(OUTPUT_DIRECTORY, exist_ok=True)
+    # get api data
     api_data = requests.get(
         "https://bymykel.github.io/CSGO-API/api/en/skins.json"
     ).json()
-    result = run(api_data)
+    # run
+    result = run(api_data, args.domain)
+    # output
     out_result = {key: asdict(value) for key, value in result.items()}
     with open(f"{OUTPUT_DIRECTORY}/skin_data.json", "w+", encoding="utf-8") as f:
         json.dump(out_result, f, ensure_ascii=False, indent=4)

@@ -2,7 +2,7 @@ import os
 
 OUTPUT_DIRECTORY = os.path.join("assets", "generated")
 LOG_DIRECTORY = "logs"
-ASSETS_DOMAIN = "https://assets.spacecases.xyz"
+DEFAULT_ASSET_DOMAIN = "https://assets.spacecases.xyz"
 VANILLA_KNIVES = {
     "★ Bayonet",
     "★ Classic Knife",
