@@ -2,3 +2,4 @@ requests
 pillow
 spacecases-common
 brotlipy
+types-requests
