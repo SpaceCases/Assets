@@ -21,20 +21,20 @@ DOPPLER_PHASES = [
 ]
 
 
-def aggregate_skinport_prices(prices: dict[str, list[int]]):
-    # for debugging to avoid ratelimiting
+def fetch_skinport_data():
+    """Fetch data from Skinport API or local cache."""
     try:
         with open("skinport_prices.json") as f:
-            skinport_item_data = json.load(f)
+            return json.load(f)
     except FileNotFoundError:
         with open("user_agents.txt") as f:
             user_agents = [line.strip() for line in f.readlines()]
-            headers = {
-                "User-Agent": random.choice(user_agents),
-                "Accept-Encoding": "br, gzip, deflate",
-                "Accept": "*/*",
-                "Connection": "keep-alive",
-            }
+        headers = {
+            "User-Agent": random.choice(user_agents),
+            "Accept-Encoding": "br, gzip, deflate",
+            "Accept": "*/*",
+            "Connection": "keep-alive",
+        }
         response = requests.get(
             "https://api.skinport.com/v1/items",
             headers=headers,
@@ -42,8 +42,18 @@ def aggregate_skinport_prices(prices: dict[str, list[int]]):
         response.raise_for_status()
         skinport_item_data = response.json()
 
+        # Optionally save fetched data for later use
+        with open("skinport_prices.json", "w") as f:
+            json.dump(skinport_item_data, f)
+        return skinport_item_data
+
+
+def aggregate_skinport_prices(prices: dict[str, list[int]], skinport_item_data):
+    """Aggregate prices from the Skinport data."""
     for datum in skinport_item_data:
-        market_hash_name: str = datum["market_hash_name"]
+        market_hash_name = datum["market_hash_name"]
+        if market_hash_name not in prices:
+            continue
         price = datum["suggested_price"]
         if price is None:
             continue
@@ -68,22 +78,23 @@ def aggregate_skinport_prices(prices: dict[str, list[int]]):
                     continue
                 prices[new_name].append(price)
         else:
-            if market_hash_name not in prices:
-                continue
             prices[market_hash_name].append(price)
 
 
-if __name__ == "__main__":
-    with open(os.path.join(OUTPUT_DIRECTORY, "skin_data.json")) as f:
-        skin_data = json.load(f)
+def aggregate_prices_for(file: str, skinport_item_data):
+    """Process a single file and aggregate prices."""
+    with open(os.path.join(OUTPUT_DIRECTORY, file)) as f:
+        metadata = json.load(f)
 
-    # aggregate all prices from different sources
+    # Initialize the price aggregation dictionary
     prices: dict[str, list[int]] = {
-        datum["formatted_name"]: [] for datum in skin_data.values()
+        datum["formatted_name"]: [] for datum in metadata.values()
     }
-    aggregate_skinport_prices(prices)
 
-    # get means of all aggregated prices
+    # Aggregate prices using Skinport data
+    aggregate_skinport_prices(prices, skinport_item_data)
+
+    # Calculate and assign mean prices to metadata
     for name, aggregated_prices in prices.items():
         unformatted_name = remove_skin_name_formatting(name)
         if len(aggregated_prices) == 0:
@@ -92,10 +103,17 @@ if __name__ == "__main__":
             mean_price = mean(aggregated_prices)
             price = int(mean_price)
 
-        skin_data[unformatted_name]["price"] = price
+        metadata[unformatted_name]["price"] = price
 
-    # write back to skin_data.json
-    with open(
-        os.path.join(OUTPUT_DIRECTORY, "skin_data.json"), "w", encoding="utf-8"
-    ) as f:
-        json.dump(skin_data, f, indent=4, ensure_ascii=False)
+    # Write updated metadata back to file
+    with open(os.path.join(OUTPUT_DIRECTORY, file), "w", encoding="utf-8") as f:
+        json.dump(metadata, f, indent=4, ensure_ascii=False)
+
+
+if __name__ == "__main__":
+    # Fetch Skinport data once
+    skinport_data = fetch_skinport_data()
+
+    # Process files using the shared Skinport data
+    aggregate_prices_for("skin_metadata.json", skinport_data)
+    aggregate_prices_for("sticker_metadata.json", skinport_data)

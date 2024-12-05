@@ -167,8 +167,24 @@ def save_skin_image(name: str, bytes: bytes):
             f.write(bytes)
 
 
-def run(skin_data, images):
-    for count, skin_datum in enumerate(skin_data, start=1):
+def run_for_skins():
+    grouped_skin_data = requests.get(
+        "https://bymykel.github.io/CSGO-API/api/en/skins.json"
+    ).json()
+    ungrouped_skin_data = requests.get(
+        "https://bymykel.github.io/CSGO-API/api/en/skins_not_grouped.json"
+    ).json()
+    # images for each
+    images = {}
+    for datum in ungrouped_skin_data:
+        if "image" not in datum:
+            continue
+        if "Doppler" in datum["name"]:
+            images[f"{datum['name']} - {datum['phase']}"] = datum["image"]
+        else:
+            images[datum["name"]] = datum["image"]
+
+    for count, skin_datum in enumerate(grouped_skin_data, start=1):
         formatted_name = skin_datum["name"]
 
         logging.info(
@@ -196,6 +212,22 @@ def run(skin_data, images):
         process_normal_skin(formatted_name, images, skin_datum, available_conditions)
 
 
+def run_for_stickers():
+    sticker_data = requests.get(
+        "https://bymykel.github.io/CSGO-API/api/en/stickers.json"
+    ).json()
+
+    for count, datum in enumerate(sticker_data, start=1):
+        formatted_name = datum["name"]
+        logging.info(f"Starting item {count}/{len(sticker_data)}: {formatted_name}")
+        unformatted_name = remove_skin_name_formatting(formatted_name)
+        image_bytes = make_safe_request(datum["image"]).content
+        with open(
+            f"{OUTPUT_DIRECTORY}/images/unformatted/{unformatted_name}.png", "wb+"
+        ) as f:
+            f.write(image_bytes)
+
+
 if __name__ == "__main__":
     # directories
     os.makedirs(f"{OUTPUT_DIRECTORY}/images/raw", exist_ok=True)
@@ -214,19 +246,5 @@ if __name__ == "__main__":
         ],
     )
 
-    grouped_skin_data = requests.get(
-        "https://bymykel.github.io/CSGO-API/api/en/skins.json"
-    ).json()
-    ungrouped_skin_data = requests.get(
-        "https://bymykel.github.io/CSGO-API/api/en/skins_not_grouped.json"
-    ).json()
-    # images for each
-    images = {}
-    for datum in ungrouped_skin_data:
-        if "image" not in datum:
-            continue
-        if "Doppler" in datum["name"]:
-            images[f"{datum['name']} - {datum['phase']}"] = datum["image"]
-        else:
-            images[datum["name"]] = datum["image"]
-    run(grouped_skin_data, images)
+    run_for_skins()
+    run_for_stickers()
