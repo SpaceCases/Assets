@@ -1,5 +1,5 @@
 """
-Aggregate all CS2 skin data into a json file, including price field but set to zero.
+Generate all metadata for CS2 skins and stickers
 """
 
 import os
@@ -119,9 +119,7 @@ def process_sticker_json(
         "rarity_contraband": Rarity.Contraband,
     }[datum["rarity"]["id"]]
     image_url = create_image_url(unformatted_name, asset_domain)
-    metadata[unformatted_name] = StickerMetadatum(
-        formatted_name, rarity, 0, image_url
-    )
+    metadata[unformatted_name] = StickerMetadatum(formatted_name, rarity, 0, image_url)
 
 
 def run(api_data, asset_domain: str) -> Result:

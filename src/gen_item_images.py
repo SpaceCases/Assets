@@ -1,5 +1,5 @@
 """
-Script to generate skin images for assets.spacecases.xyz
+Generate/download all images for CS2 skins and stickers
 """
 
 import os

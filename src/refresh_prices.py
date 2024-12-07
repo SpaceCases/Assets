@@ -1,3 +1,7 @@
+"""
+Refresh prices in the `skin_metadata.json` and `sticker_metadata.json` files
+"""
+
 import os
 import json
 import requests
