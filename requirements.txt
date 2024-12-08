@@ -1,7 +1,5 @@
-spacecases-common
-requests
-types-requests
-pillow
-brotlipy
-mypy
-ruff
+brotlipy==0.7.0
+pillow==11.0.0
+spacecases-common==0.8.1
+requests==2.32.3
+types-requests==2.32.0.20241016
