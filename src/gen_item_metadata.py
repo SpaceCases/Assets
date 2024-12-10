@@ -18,22 +18,12 @@ from spacecases_common import (
     Rarity,
 )
 from constants import VANILLA_KNIVES
-from util import Condition
+from util import Condition, create_image_url, get_rarity_from_string
 
 
 class Result(NamedTuple):
     skin_metadata: dict[str, SkinMetadatum]
     sticker_metadata: dict[str, StickerMetadatum]
-
-
-def create_image_url(name: str, asset_domain: str) -> str:
-    return os.path.join(
-        asset_domain,
-        "generated",
-        "images",
-        "unformatted",
-        f"{name}.png",
-    )
 
 
 def process_skin_json(metadata: dict[str, SkinMetadatum], datum, asset_domain: str):
@@ -71,16 +61,7 @@ def process_non_vanilla_knife(
         formatted_name = f"{name_no_wear} - {phase} {condition}"
     unformatted_name = remove_skin_name_formatting(formatted_name)
     # rarity
-    rarity = {
-        "rarity_common_weapon": Rarity.Common,
-        "rarity_uncommon_weapon": Rarity.Uncommon,
-        "rarity_rare_weapon": Rarity.Rare,
-        "rarity_mythical_weapon": Rarity.Mythical,
-        "rarity_legendary_weapon": Rarity.Legendary,
-        "rarity_ancient_weapon": Rarity.Ancient,
-        "rarity_ancient": Rarity.Ancient,
-        "rarity_contraband_weapon": Rarity.Contraband,
-    }[datum["rarity"]["id"]]
+    rarity = get_rarity_from_string(datum["rarity"]["id"])
     # float range
     min_float = datum.get("min_float", 0.0)
     max_float = datum.get("max_float", 1.0)
@@ -110,14 +91,7 @@ def process_sticker_json(
 ):
     formatted_name = datum["name"]
     unformatted_name = remove_skin_name_formatting(formatted_name)
-    rarity = {
-        "rarity_default": Rarity.Common,
-        "rarity_rare": Rarity.Rare,
-        "rarity_mythical": Rarity.Mythical,
-        "rarity_legendary": Rarity.Legendary,
-        "rarity_ancient": Rarity.Ancient,
-        "rarity_contraband": Rarity.Contraband,
-    }[datum["rarity"]["id"]]
+    rarity = get_rarity_from_string(datum["rarity"]["id"])
     image_url = create_image_url(unformatted_name, asset_domain)
     metadata[unformatted_name] = StickerMetadatum(formatted_name, rarity, 0, image_url)
 
@@ -136,7 +110,7 @@ def run(api_data, asset_domain: str) -> Result:
 if __name__ == "__main__":
     # argument parsing
     parser = argparse.ArgumentParser(
-        prog="get_item_data",
+        prog="get_item_metadata",
         description=sys.modules[__name__].__doc__,
         epilog="Report bugs to https://github.com/SpaceCases/Assets/issues",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,

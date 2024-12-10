@@ -168,6 +168,7 @@ def save_skin_image(name: str, bytes: bytes):
 
 
 def run_for_skins():
+    logging.info("Starting skins")
     grouped_skin_data = requests.get(
         "https://bymykel.github.io/CSGO-API/api/en/skins.json"
     ).json()
@@ -212,20 +213,38 @@ def run_for_skins():
         process_normal_skin(formatted_name, images, skin_datum, available_conditions)
 
 
-def run_for_stickers():
-    sticker_data = requests.get(
-        "https://bymykel.github.io/CSGO-API/api/en/stickers.json"
-    ).json()
-
-    for count, datum in enumerate(sticker_data, start=1):
+def download_images_from_api_data(api_data) -> None:
+    for count, datum in enumerate(api_data, start=1):
         formatted_name = datum["name"]
-        logging.info(f"Starting item {count}/{len(sticker_data)}: {formatted_name}")
+        logging.info(f"Starting item {count}/{len(api_data)}: {formatted_name}")
         unformatted_name = remove_skin_name_formatting(formatted_name)
         image_bytes = make_safe_request(datum["image"]).content
         with open(
             f"{OUTPUT_DIRECTORY}/images/unformatted/{unformatted_name}.png", "wb+"
         ) as f:
             f.write(image_bytes)
+
+
+def run_for_stickers():
+    logging.info("Starting stickers")
+    sticker_data = requests.get(
+        "https://bymykel.github.io/CSGO-API/api/en/stickers.json"
+    ).json()
+    download_images_from_api_data(sticker_data)
+
+
+def run_for_containters():
+    logging.info("Starting containers")
+    container_data = requests.get(
+        "https://bymykel.github.io/CSGO-API/api/en/crates.json"
+    ).json()
+    # only include skin cases, souvenir packages and sticker capsules
+    filtered_container_data = [
+        datum
+        for datum in container_data
+        if datum["type"] in {"Case", "Souvenir", "Sticker Capsule"}
+    ]
+    download_images_from_api_data(filtered_container_data)
 
 
 if __name__ == "__main__":
@@ -245,6 +264,6 @@ if __name__ == "__main__":
             logging.StreamHandler(),
         ],
     )
-
-    run_for_skins()
-    run_for_stickers()
+    # run_for_skins()
+    # run_for_stickers()
+    run_for_containters()

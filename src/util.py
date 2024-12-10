@@ -1,4 +1,6 @@
+import os
 from enum import IntEnum
+from spacecases_common import Rarity
 
 
 class Condition(IntEnum):
@@ -50,3 +52,32 @@ def get_all_conditions_for_float_range(
     min_idx = _get_best_condition_idx(min_float)
     max_idx = _get_worst_condition_idx(max_float)
     return [Condition(i) for i in range(min_idx, max_idx + 1)]
+
+
+def create_image_url(name: str, asset_domain: str) -> str:
+    return os.path.join(
+        asset_domain,
+        "generated",
+        "images",
+        "unformatted",
+        f"{name}.png",
+    )
+
+
+def get_rarity_from_string(string: str) -> Rarity:
+    return {
+        "rarity_common_weapon": Rarity.Common,
+        "rarity_uncommon_weapon": Rarity.Uncommon,
+        "rarity_rare_weapon": Rarity.Rare,
+        "rarity_mythical_weapon": Rarity.Mythical,
+        "rarity_legendary_weapon": Rarity.Legendary,
+        "rarity_ancient_weapon": Rarity.Ancient,
+        "rarity_ancient": Rarity.Ancient,
+        "rarity_contraband_weapon": Rarity.Contraband,
+        "rarity_default": Rarity.Common,
+        "rarity_rare": Rarity.Rare,
+        "rarity_mythical": Rarity.Mythical,
+        "rarity_legendary": Rarity.Legendary,
+        "rarity_ancient": Rarity.Ancient,
+        "rarity_contraband": Rarity.Contraband,
+    }[string]

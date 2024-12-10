@@ -6,23 +6,11 @@ import os
 import json
 import requests
 import random
-from spacecases_common import remove_skin_name_formatting
+from spacecases_common import remove_skin_name_formatting, PhaseGroup
 from constants import OUTPUT_DIRECTORY, VANILLA_KNIVES
 from decimal import Decimal
 from statistics import mean
 from util import Condition
-
-GAMMA_DOPPLER_PHASES = ["Phase 1", "Phase 2", "Phase 3", "Phase 4", "Emerald"]
-
-DOPPLER_PHASES = [
-    "Phase 1",
-    "Phase 2",
-    "Phase 3",
-    "Phase 4",
-    "Ruby",
-    "Sapphire",
-    "Black Pearl",
-]
 
 
 def fetch_skinport_data():
@@ -70,13 +58,13 @@ def aggregate_skinport_prices(prices: dict[str, list[int]], skinport_item_data):
             continue
 
         if "Gamma Doppler" in market_hash_name:
-            for phase in GAMMA_DOPPLER_PHASES:
+            for phase in PhaseGroup.GAMMA_DOPPLER.get_phases():
                 new_name = market_hash_name.replace("(", f"- {phase} (")
                 if new_name not in prices:
                     continue
                 prices[new_name].append(price)
         elif "Doppler" in market_hash_name:
-            for phase in DOPPLER_PHASES:
+            for phase in PhaseGroup.DOPPLER.get_phases():
                 new_name = market_hash_name.replace("(", f"- {phase} (")
                 if new_name not in prices:
                     continue
@@ -121,3 +109,6 @@ if __name__ == "__main__":
     # Process files using the shared Skinport data
     aggregate_prices_for("skin_metadata.json", skinport_data)
     aggregate_prices_for("sticker_metadata.json", skinport_data)
+    aggregate_prices_for("skin_cases.json", skinport_data)
+    aggregate_prices_for("sticker_capsules.json", skinport_data)
+    aggregate_prices_for("souvenir_packages.json", skinport_data)
