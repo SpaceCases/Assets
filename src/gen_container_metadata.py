@@ -46,7 +46,12 @@ def create_skin_container_entry_from_datum(datum) -> SkinContainerEntry:
     item_unformatted_name = remove_skin_name_formatting(item_formatted_name)
     min_float, max_float = float_ranges[item_unformatted_name]
     phase_group = get_phase_group_from_unformatted_name(item_unformatted_name)
-    return SkinContainerEntry(item_unformatted_name, min_float, max_float, phase_group)
+    image_url = os.path.join(
+        args.domain, "generated", "images", "preview", f"{item_unformatted_name}.png"
+    )
+    return SkinContainerEntry(
+        item_unformatted_name, min_float, max_float, phase_group, image_url
+    )
 
 
 def process_skin_case(skin_cases: dict[str, SkinCase], api_datum) -> None:
@@ -108,10 +113,21 @@ def process_sticker_capsule(
         list[ItemContainerEntry]
     )
     for item in api_datum["contains"]:
-        item_formatted_name = item["name"]
+        item_formatted_name = f"Sticker | {item["name"]}"
         item_unformatted_name = remove_skin_name_formatting(item_formatted_name)
         rarity = get_rarity_from_string(item["rarity"]["id"])
-        contains[rarity].append(ItemContainerEntry(item_unformatted_name))
+        contains[rarity].append(
+            ItemContainerEntry(
+                item_unformatted_name,
+                os.path.join(
+                    args.domain,
+                    "generated",
+                    "images",
+                    "unformatted",
+                    f"{item_unformatted_name}.png",
+                ),
+            )
+        )
     sticker_capsules[unformatted_name] = StickerCapsule(
         formatted_name,
         0,

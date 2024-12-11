@@ -1,5 +1,5 @@
 brotlipy==0.7.0
 pillow==11.0.0
-spacecases-common==0.9.3
+spacecases-common==0.9.4
 requests==2.32.3
 types-requests==2.32.0.20241016
