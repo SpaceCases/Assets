@@ -1,5 +1,5 @@
 """
-Generate/download all images for CS2 skins and stickers
+Generate/download all images for CS2 skins, stickers and containers
 """
 
 import os
@@ -20,13 +20,25 @@ from util import get_all_conditions_for_float_range, Condition
 CONDITION_IDX_TO_IMAGE_IDX = [0, 0, 1, 1, 2]
 
 
-def create_skin_symlink(condition_image: str, symlink_name: str):
-    source = os.path.join(OUTPUT_DIRECTORY, "images", "raw", f"{condition_image}.png")
-    destination = os.path.join(
-        OUTPUT_DIRECTORY, "images", "unformatted", f"{symlink_name}.png"
-    )
+def create_symlink(source: str, destination: str):
+    source = os.path.join(OUTPUT_DIRECTORY, source)
+    destination = os.path.join(OUTPUT_DIRECTORY, destination)
     relative_source = os.path.relpath(source, os.path.dirname(destination))
     os.symlink(relative_source, destination)
+
+
+def create_skin_symlink(condition_image: str, symlink_name: str):
+    create_symlink(
+        os.path.join("images", "raw", f"{condition_image}.png"),
+        os.path.join("images", "unformatted", f"{symlink_name}.png"),
+    )
+
+
+def create_preview_symlink(condition_image: str, symlink_name: str):
+    create_symlink(
+        os.path.join("images", "raw", f"{condition_image}.png"),
+        os.path.join("images", "preview", f"{symlink_name}.png"),
+    )
 
 
 with open("user_agents.txt") as f:
@@ -69,9 +81,13 @@ def process_normal_skin(
                 if skin_datum["souvenir"]:
                     save_skin_image(f"souvenir{unformatted_name}{idx}", image_bytes)
                 break
-    for condition in available_conditions:
+
+    for count, condition in enumerate(available_conditions):
         idx = CONDITION_IDX_TO_IMAGE_IDX[condition.value]
         unformatted_condition = remove_skin_name_formatting(str(condition))
+        # create a preview skin link of the skins best quality
+        if count == 0:
+            create_preview_symlink(f"{unformatted_name}{idx}", unformatted_name)
         create_skin_symlink(
             f"{unformatted_name}{idx}", f"{unformatted_name}{unformatted_condition}"
         )
@@ -118,9 +134,15 @@ def process_doppler_skin(
                     )
                 break
 
-    for condition in available_conditions:
+    for count, condition in enumerate(available_conditions):
         idx = CONDITION_IDX_TO_IMAGE_IDX[condition.value]
         unformatted_condition = remove_skin_name_formatting(str(condition))
+        # create a preview skin link of the skins best quality
+        if count == 0:
+            create_preview_symlink(
+                f"{unformatted_name}{unformatted_phase}{idx}",
+                f"{unformatted_name}{unformatted_phase}",
+            )
         create_skin_symlink(
             f"{unformatted_name}{unformatted_phase}{idx}",
             f"{unformatted_name}{unformatted_phase}{unformatted_condition}",
@@ -146,9 +168,12 @@ def process_vanilla_knife(name: str, images):
     save_skin_image(unformatted_name, image_bytes)
     save_skin_image(f"stattrak{unformatted_name}", image_bytes)
     # create symlinks
-    for condition in Condition:
+    for count, condition in enumerate(Condition):
         unformatted_condition = remove_skin_name_formatting(str(condition))
         full_name = f"{unformatted_name}{unformatted_condition}"
+        # create a preview skin link of the skins best quality
+        if count == 0:
+            create_preview_symlink(f"{unformatted_name}", unformatted_name)
         create_skin_symlink(unformatted_name, full_name)
         create_skin_symlink(f"stattrak{unformatted_name}", f"stattrak{full_name}")
 
@@ -251,6 +276,7 @@ if __name__ == "__main__":
     # directories
     os.makedirs(f"{OUTPUT_DIRECTORY}/images/raw", exist_ok=True)
     os.makedirs(f"{OUTPUT_DIRECTORY}/images/unformatted", exist_ok=True)
+    os.makedirs(f"{OUTPUT_DIRECTORY}/images/preview", exist_ok=True)
     os.makedirs(LOG_DIRECTORY, exist_ok=True)
 
     # logging
@@ -264,6 +290,7 @@ if __name__ == "__main__":
             logging.StreamHandler(),
         ],
     )
+    run_for_skins()
     # run_for_skins()
     # run_for_stickers()
-    run_for_containters()
+    # run_for_containters()
