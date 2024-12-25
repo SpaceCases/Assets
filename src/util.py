@@ -10,7 +10,7 @@ class Condition(IntEnum):
     WELL_WORN = 3
     BATTLE_SCARRED = 4
 
-    def __str__(self):
+    def __str__(self) -> str:
         return [
             "Factory New",
             "Minimal Wear",
@@ -72,7 +72,6 @@ def get_rarity_from_string(string: str) -> Rarity:
         "rarity_mythical_weapon": Rarity.Mythical,
         "rarity_legendary_weapon": Rarity.Legendary,
         "rarity_ancient_weapon": Rarity.Ancient,
-        "rarity_ancient": Rarity.Ancient,
         "rarity_contraband_weapon": Rarity.Contraband,
         "rarity_default": Rarity.Common,
         "rarity_rare": Rarity.Rare,

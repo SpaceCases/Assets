@@ -165,3 +165,5 @@ output/
 assets/generated/
 logs/
 skinport_prices.json
+
+.ruff_cache/

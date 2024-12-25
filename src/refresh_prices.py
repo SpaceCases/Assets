@@ -6,6 +6,7 @@ import os
 import json
 import requests
 import random
+from typing import Any
 from spacecases_common import remove_skin_name_formatting, PhaseGroup
 from constants import OUTPUT_DIRECTORY, VANILLA_KNIVES
 from decimal import Decimal
@@ -13,7 +14,7 @@ from statistics import mean
 from util import Condition
 
 
-def fetch_skinport_data():
+def fetch_skinport_data() -> Any:
     """Fetch data from Skinport API or local cache."""
     try:
         with open("skinport_prices.json") as f:
@@ -40,7 +41,7 @@ def fetch_skinport_data():
         return skinport_item_data
 
 
-def aggregate_skinport_prices(prices: dict[str, list[int]], skinport_item_data):
+def aggregate_skinport_prices(prices: dict[str, list[int]], skinport_item_data: Any) -> None:
     """Aggregate prices from the Skinport data."""
     for datum in skinport_item_data:
         market_hash_name = datum["market_hash_name"]
@@ -73,7 +74,7 @@ def aggregate_skinport_prices(prices: dict[str, list[int]], skinport_item_data):
             prices[market_hash_name].append(price)
 
 
-def aggregate_prices_for(file: str, skinport_item_data):
+def aggregate_prices_for(file: str, skinport_item_data: Any) -> None:
     """Process a single file and aggregate prices."""
     with open(os.path.join(OUTPUT_DIRECTORY, file)) as f:
         metadata = json.load(f)

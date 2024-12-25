@@ -8,7 +8,7 @@ import sys
 import json
 import requests
 import argparse
-from typing import NamedTuple
+from typing import NamedTuple, Any
 from dataclasses import asdict
 from constants import OUTPUT_DIRECTORY, DEFAULT_ASSET_DOMAIN
 from spacecases_common import (
@@ -26,14 +26,14 @@ class Result(NamedTuple):
     sticker_metadata: dict[str, StickerMetadatum]
 
 
-def process_skin_json(metadata: dict[str, SkinMetadatum], datum, asset_domain: str):
+def process_skin_json(metadata: dict[str, SkinMetadatum], datum: Any, asset_domain: str) -> None:
     if datum["name"] in VANILLA_KNIVES:
         process_vanilla_knife(metadata, datum, asset_domain)
     else:
         process_non_vanilla_knife(metadata, datum, asset_domain)
 
 
-def process_vanilla_knife(metadata: dict[str, SkinMetadatum], datum, asset_domain: str):
+def process_vanilla_knife(metadata: dict[str, SkinMetadatum], datum: Any, asset_domain: str) -> None:
     formatted_name_no_wear = datum["name"]
     for condition in Condition:
         formatted_name = f"{formatted_name_no_wear} ({condition})"
@@ -49,8 +49,8 @@ def process_vanilla_knife(metadata: dict[str, SkinMetadatum], datum, asset_domai
 
 
 def process_non_vanilla_knife(
-    metadata: dict[str, SkinMetadatum], datum, asset_domain: str
-):
+    metadata: dict[str, SkinMetadatum], datum: Any, asset_domain: str
+) -> None:
     # name
     formatted_name = datum["name"]
     if "Doppler" in formatted_name:
@@ -87,8 +87,8 @@ def process_non_vanilla_knife(
 
 
 def process_sticker_json(
-    metadata: dict[str, StickerMetadatum], datum, asset_domain: str
-):
+    metadata: dict[str, StickerMetadatum], datum: Any, asset_domain: str
+) -> None:
     formatted_name = datum["name"]
     unformatted_name = remove_skin_name_formatting(formatted_name)
     rarity = get_rarity_from_string(datum["rarity"]["id"])
@@ -96,7 +96,7 @@ def process_sticker_json(
     metadata[unformatted_name] = StickerMetadatum(formatted_name, rarity, 0, image_url)
 
 
-def run(api_data, asset_domain: str) -> Result:
+def run(api_data: Any, asset_domain: str) -> Result:
     skin_metadata: dict[str, SkinMetadatum] = {}
     sticker_metadata: dict[str, StickerMetadatum] = {}
     for name, datum in api_data.items():

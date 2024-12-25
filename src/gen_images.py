@@ -7,6 +7,7 @@ import time
 import random
 import logging
 import requests
+from typing import Any
 from datetime import datetime
 from PIL import Image, ImageOps
 from io import BytesIO
@@ -20,21 +21,21 @@ from util import get_all_conditions_for_float_range, Condition
 CONDITION_IDX_TO_IMAGE_IDX = [0, 0, 1, 1, 2]
 
 
-def create_symlink(source: str, destination: str):
+def create_symlink(source: str, destination: str) -> None:
     source = os.path.join(OUTPUT_DIRECTORY, source)
     destination = os.path.join(OUTPUT_DIRECTORY, destination)
     relative_source = os.path.relpath(source, os.path.dirname(destination))
     os.symlink(relative_source, destination)
 
 
-def create_skin_symlink(condition_image: str, symlink_name: str):
+def create_skin_symlink(condition_image: str, symlink_name: str) -> None:
     create_symlink(
         os.path.join("images", "raw", f"{condition_image}.png"),
         os.path.join("images", "unformatted", f"{symlink_name}.png"),
     )
 
 
-def create_preview_symlink(condition_image: str, symlink_name: str):
+def create_preview_symlink(condition_image: str, symlink_name: str) -> None:
     create_symlink(
         os.path.join("images", "raw", f"{condition_image}.png"),
         os.path.join("images", "preview", f"{symlink_name}.png"),
@@ -56,8 +57,8 @@ def make_safe_request(url: str) -> requests.Response:
 
 
 def process_normal_skin(
-    name: str, images, skin_datum, available_conditions: set[Condition]
-):
+    name: str, images: dict[str, str], skin_datum: Any, available_conditions: set[Condition]
+) -> None:
     logging.info(f"Processing skin: {name}")
     unformatted_name = remove_skin_name_formatting(name)
     for idx, conditions in [
@@ -104,8 +105,8 @@ def process_normal_skin(
 
 
 def process_doppler_skin(
-    name: str, images, skin_datum, available_conditions: set[Condition]
-):
+    name: str, images: dict[str, str], skin_datum: Any, available_conditions: set[Condition]
+) -> None:
     logging.info(f"Processing doppler skin: {name} - {skin_datum['phase']}")
     unformatted_name = remove_skin_name_formatting(name)
     unformatted_phase = remove_skin_name_formatting(skin_datum["phase"])
@@ -159,7 +160,7 @@ def process_doppler_skin(
             )
 
 
-def process_vanilla_knife(name: str, images):
+def process_vanilla_knife(name: str, images: dict[str, str]) -> None:
     logging.info(f"Processing vanilla knife: {name}")
     # save normal and stattrak version
     unformatted_name = remove_skin_name_formatting(name)
@@ -178,7 +179,7 @@ def process_vanilla_knife(name: str, images):
         create_skin_symlink(f"stattrak{unformatted_name}", f"stattrak{full_name}")
 
 
-def save_skin_image(name: str, bytes: bytes):
+def save_skin_image(name: str, bytes: bytes) -> None:
     if name.startswith("souvenir"):
         image = Image.open(BytesIO(bytes))
         bordered_image = ImageOps.expand(image, border=3, fill="#CF6A32")
@@ -192,7 +193,7 @@ def save_skin_image(name: str, bytes: bytes):
             f.write(bytes)
 
 
-def run_for_skins():
+def run_for_skins() -> None:
     logging.info("Starting skins")
     grouped_skin_data = requests.get(
         "https://bymykel.github.io/CSGO-API/api/en/skins.json"
@@ -238,7 +239,7 @@ def run_for_skins():
         process_normal_skin(formatted_name, images, skin_datum, available_conditions)
 
 
-def download_images_from_api_data(api_data) -> None:
+def download_images_from_api_data(api_data: Any) -> None:
     for count, datum in enumerate(api_data, start=1):
         formatted_name = datum["name"]
         logging.info(f"Starting item {count}/{len(api_data)}: {formatted_name}")
@@ -250,7 +251,7 @@ def download_images_from_api_data(api_data) -> None:
             f.write(image_bytes)
 
 
-def run_for_stickers():
+def run_for_stickers() -> None:
     logging.info("Starting stickers")
     sticker_data = requests.get(
         "https://bymykel.github.io/CSGO-API/api/en/stickers.json"
@@ -258,7 +259,7 @@ def run_for_stickers():
     download_images_from_api_data(sticker_data)
 
 
-def run_for_containters():
+def run_for_containters() -> None:
     logging.info("Starting containers")
     container_data = requests.get(
         "https://bymykel.github.io/CSGO-API/api/en/crates.json"

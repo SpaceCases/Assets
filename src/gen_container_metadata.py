@@ -8,7 +8,7 @@ import json
 import argparse
 import requests
 from dataclasses import asdict
-from typing import NamedTuple, Optional
+from typing import NamedTuple, Optional, Any
 from collections import defaultdict
 from constants import OUTPUT_DIRECTORY, DEFAULT_ASSET_DOMAIN
 from spacecases_common import (
@@ -41,7 +41,7 @@ def get_phase_group_from_unformatted_name(
         return None
 
 
-def create_skin_container_entry_from_datum(datum) -> SkinContainerEntry:
+def create_skin_container_entry_from_datum(datum: Any) -> SkinContainerEntry:
     item_formatted_name = datum["name"]
     item_unformatted_name = remove_skin_name_formatting(item_formatted_name)
     min_float, max_float = float_ranges[item_unformatted_name]
@@ -54,7 +54,7 @@ def create_skin_container_entry_from_datum(datum) -> SkinContainerEntry:
     )
 
 
-def process_skin_case(skin_cases: dict[str, SkinCase], api_datum) -> None:
+def process_skin_case(skin_cases: dict[str, SkinCase], api_datum: Any) -> None:
     formatted_name = api_datum["name"]
     unformatted_name = remove_skin_name_formatting(formatted_name)
     contains: dict[Rarity, list[SkinContainerEntry]] = defaultdict(
@@ -78,7 +78,7 @@ def process_skin_case(skin_cases: dict[str, SkinCase], api_datum) -> None:
 
 
 def process_souvenir_package(
-    souvenir_packages: dict[str, SouvenirPackage], api_datum
+    souvenir_packages: dict[str, SouvenirPackage], api_datum: Any
 ) -> None:
     formatted_name = api_datum["name"]
     unformatted_name = remove_skin_name_formatting(formatted_name)
@@ -105,7 +105,7 @@ STICKER_CAPSULES_THAT_REQUIRE_KEYS = {
 
 
 def process_sticker_capsule(
-    sticker_capsules: dict[str, StickerCapsule], api_datum
+    sticker_capsules: dict[str, StickerCapsule], api_datum: Any
 ) -> None:
     formatted_name = api_datum["name"]
     unformatted_name = remove_skin_name_formatting(formatted_name)
@@ -138,7 +138,7 @@ def process_sticker_capsule(
     )
 
 
-def run(api_data) -> Result:
+def run(api_data: Any) -> Result:
     skin_cases: dict[str, SkinCase] = {}
     souvenir_packages: dict[str, SouvenirPackage] = {}
     sticker_capsules: dict[str, StickerCapsule] = {}
