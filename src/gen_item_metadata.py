@@ -26,14 +26,18 @@ class Result(NamedTuple):
     sticker_metadata: dict[str, StickerMetadatum]
 
 
-def process_skin_json(metadata: dict[str, SkinMetadatum], datum: Any, asset_domain: str) -> None:
+def process_skin_json(
+    metadata: dict[str, SkinMetadatum], datum: Any, asset_domain: str
+) -> None:
     if datum["name"] in VANILLA_KNIVES:
         process_vanilla_knife(metadata, datum, asset_domain)
     else:
         process_non_vanilla_knife(metadata, datum, asset_domain)
 
 
-def process_vanilla_knife(metadata: dict[str, SkinMetadatum], datum: Any, asset_domain: str) -> None:
+def process_vanilla_knife(
+    metadata: dict[str, SkinMetadatum], datum: Any, asset_domain: str
+) -> None:
     formatted_name_no_wear = datum["name"]
     for condition in Condition:
         formatted_name = f"{formatted_name_no_wear} ({condition})"

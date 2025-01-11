@@ -41,7 +41,9 @@ def fetch_skinport_data() -> Any:
         return skinport_item_data
 
 
-def aggregate_skinport_prices(prices: dict[str, list[int]], skinport_item_data: Any) -> None:
+def aggregate_skinport_prices(
+    prices: dict[str, list[int]], skinport_item_data: Any
+) -> None:
     """Aggregate prices from the Skinport data."""
     for datum in skinport_item_data:
         market_hash_name = datum["market_hash_name"]

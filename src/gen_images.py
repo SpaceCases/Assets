@@ -57,7 +57,10 @@ def make_safe_request(url: str) -> requests.Response:
 
 
 def process_normal_skin(
-    name: str, images: dict[str, str], skin_datum: Any, available_conditions: set[Condition]
+    name: str,
+    images: dict[str, str],
+    skin_datum: Any,
+    available_conditions: set[Condition],
 ) -> None:
     logging.info(f"Processing skin: {name}")
     unformatted_name = remove_skin_name_formatting(name)
@@ -105,7 +108,10 @@ def process_normal_skin(
 
 
 def process_doppler_skin(
-    name: str, images: dict[str, str], skin_datum: Any, available_conditions: set[Condition]
+    name: str,
+    images: dict[str, str],
+    skin_datum: Any,
+    available_conditions: set[Condition],
 ) -> None:
     logging.info(f"Processing doppler skin: {name} - {skin_datum['phase']}")
     unformatted_name = remove_skin_name_formatting(name)
