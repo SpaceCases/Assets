@@ -5,7 +5,7 @@ requires-python = ">= 3.12.3"
 dependencies = [
     "brotlipy==0.7.0",
     "pillow==11.0.0",
-    "spacecases-common==0.9.5",
+    "spacecases-common==0.15.1",
     "requests==2.32.3",
     "types-requests==2.32.0.20241016",
     "ruff == 0.8.4",

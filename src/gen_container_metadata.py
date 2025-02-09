@@ -7,7 +7,6 @@ import sys
 import json
 import argparse
 import requests
-from dataclasses import asdict
 from typing import NamedTuple, Optional, Any
 from collections import defaultdict
 from constants import OUTPUT_DIRECTORY, DEFAULT_ASSET_DOMAIN
@@ -50,7 +49,11 @@ def create_skin_container_entry_from_datum(datum: Any) -> SkinContainerEntry:
         args.domain, "generated", "images", "preview", f"{item_unformatted_name}.png"
     )
     return SkinContainerEntry(
-        item_unformatted_name, min_float, max_float, phase_group, image_url
+        unformatted_name=item_unformatted_name,
+        min_float=min_float,
+        max_float=max_float,
+        phase_group=phase_group,
+        image_url=image_url,
     )
 
 
@@ -68,12 +71,12 @@ def process_skin_case(skin_cases: dict[str, SkinCase], api_datum: Any) -> None:
         for item in api_datum["contains_rare"]
     ]
     skin_cases[unformatted_name] = SkinCase(
-        formatted_name,
-        0,
-        create_image_url(unformatted_name, args.domain),
-        True,
-        contains,
-        contains_rare,
+        formatted_name=formatted_name,
+        price=0,
+        image_url=create_image_url(unformatted_name, args.domain),
+        requires_key=True,
+        contains=contains,
+        contains_rare=contains_rare,
     )
 
 
@@ -89,12 +92,12 @@ def process_souvenir_package(
         rarity = get_rarity_from_string(item["rarity"]["id"])
         contains[rarity].append(create_skin_container_entry_from_datum(item))
     souvenir_packages[unformatted_name] = SouvenirPackage(
-        formatted_name,
-        0,
-        create_image_url(unformatted_name, args.domain),
-        False,
-        contains,
-        [],
+        formatted_name=formatted_name,
+        price=0,
+        image_url=create_image_url(unformatted_name, args.domain),
+        requires_key=False,
+        contains=contains,
+        contains_rare=[],
     )
 
 
@@ -118,8 +121,8 @@ def process_sticker_capsule(
         rarity = get_rarity_from_string(item["rarity"]["id"])
         contains[rarity].append(
             ItemContainerEntry(
-                item_unformatted_name,
-                os.path.join(
+                unformatted_name=item_unformatted_name,
+                image_url=os.path.join(
                     args.domain,
                     "generated",
                     "images",
@@ -129,12 +132,12 @@ def process_sticker_capsule(
             )
         )
     sticker_capsules[unformatted_name] = StickerCapsule(
-        formatted_name,
-        0,
-        create_image_url(unformatted_name, args.domain),
-        unformatted_name in STICKER_CAPSULES_THAT_REQUIRE_KEYS,
-        contains,
-        [],
+        formatted_name=formatted_name,
+        price=0,
+        image_url=create_image_url(unformatted_name, args.domain),
+        requires_key=unformatted_name in STICKER_CAPSULES_THAT_REQUIRE_KEYS,
+        contains=contains,
+        contains_rare=[],
     )
 
 
@@ -195,7 +198,7 @@ if __name__ == "__main__":
     # output to json
     with open(f"{OUTPUT_DIRECTORY}/skin_cases.json", "w+", encoding="utf-8") as f:
         json.dump(
-            {key: asdict(value) for key, value in skin_cases.items()},
+            {key: value.model_dump() for key, value in skin_cases.items()},
             f,
             ensure_ascii=False,
             indent=4,
@@ -204,14 +207,14 @@ if __name__ == "__main__":
         f"{OUTPUT_DIRECTORY}/souvenir_packages.json", "w+", encoding="utf-8"
     ) as f:
         json.dump(
-            {key: asdict(value) for key, value in souvenir_packages.items()},
+            {key: value.model_dump() for key, value in souvenir_packages.items()},
             f,
             ensure_ascii=False,
             indent=4,
         )
     with open(f"{OUTPUT_DIRECTORY}/sticker_capsules.json", "w+", encoding="utf-8") as f:
         json.dump(
-            {key: asdict(value) for key, value in sticker_capsules.items()},
+            {key: value.model_dump() for key, value in sticker_capsules.items()},
             f,
             ensure_ascii=False,
             indent=4,

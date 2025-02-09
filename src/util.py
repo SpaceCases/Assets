@@ -1,23 +1,5 @@
 import os
-from enum import IntEnum
-from spacecases_common import Rarity
-
-
-class Condition(IntEnum):
-    FACTORY_NEW = 0
-    MINIMAL_WEAR = 1
-    FIELD_TESTED = 2
-    WELL_WORN = 3
-    BATTLE_SCARRED = 4
-
-    def __str__(self) -> str:
-        return [
-            "Factory New",
-            "Minimal Wear",
-            "Field-Tested",
-            "Well-Worn",
-            "Battle-Scarred",
-        ][self.value]
+from spacecases_common import Rarity, Condition
 
 
 def _get_best_condition_idx(min_float: float) -> int:

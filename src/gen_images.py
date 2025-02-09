@@ -65,9 +65,9 @@ def process_normal_skin(
     logging.info(f"Processing skin: {name}")
     unformatted_name = remove_skin_name_formatting(name)
     for idx, conditions in [
-        (0, [Condition.FACTORY_NEW, Condition.MINIMAL_WEAR]),
-        (1, [Condition.FIELD_TESTED, Condition.WELL_WORN]),
-        (2, [Condition.BATTLE_SCARRED]),
+        (0, [Condition.FactoryNew, Condition.MinimalWear]),
+        (1, [Condition.FieldTested, Condition.WellWorn]),
+        (2, [Condition.BattleScarred]),
     ]:
         for condition in conditions:
             if condition in available_conditions:
@@ -117,9 +117,9 @@ def process_doppler_skin(
     unformatted_name = remove_skin_name_formatting(name)
     unformatted_phase = remove_skin_name_formatting(skin_datum["phase"])
     for idx, conditions in [
-        (0, [Condition.FACTORY_NEW, Condition.MINIMAL_WEAR]),
-        (1, [Condition.FIELD_TESTED, Condition.WELL_WORN]),
-        (2, [Condition.BATTLE_SCARRED]),
+        (0, [Condition.FactoryNew, Condition.MinimalWear]),
+        (1, [Condition.FieldTested, Condition.WellWorn]),
+        (2, [Condition.BattleScarred]),
     ]:
         for condition in conditions:
             if condition in available_conditions:

@@ -9,7 +9,6 @@ import json
 import requests
 import argparse
 from typing import NamedTuple, Any
-from dataclasses import asdict
 from constants import OUTPUT_DIRECTORY, DEFAULT_ASSET_DOMAIN
 from spacecases_common import (
     remove_skin_name_formatting,
@@ -48,7 +47,14 @@ def process_vanilla_knife(
         description = None
         image_url = create_image_url(unformatted_name, asset_domain)
         metadata[unformatted_name] = SkinMetadatum(
-            formatted_name, rarity, 0, image_url, description, min_float, max_float
+            formatted_name=formatted_name,
+            condition=condition,
+            rarity=rarity,
+            price=0,
+            image_url=image_url,
+            description=description,
+            min_float=min_float,
+            max_float=max_float,
         )
 
 
@@ -61,8 +67,20 @@ def process_non_vanilla_knife(
         phase = datum["phase"]
         split = formatted_name.split("(")
         name_no_wear = split[0].strip()
-        condition = f"({split[1].strip()}"
-        formatted_name = f"{name_no_wear} - {phase} {condition}"
+        condition_string = f"({split[1].strip()}"
+        formatted_name = f"{name_no_wear} - {phase} {condition_string}"
+    # determine condition
+    for condition_string, condition in [
+        ("Factory New", Condition.FactoryNew),
+        ("Minimal Wear", Condition.MinimalWear),
+        ("Field-Tested", Condition.FieldTested),
+        ("Well-Worn", Condition.WellWorn),
+        ("Battle-Scarred", Condition.BattleScarred),
+    ]:
+        if condition_string in formatted_name:
+            break
+    else:
+        raise ValueError(f"No condition found for {formatted_name}")
     unformatted_name = remove_skin_name_formatting(formatted_name)
     # rarity
     rarity = get_rarity_from_string(datum["rarity"]["id"])
@@ -79,13 +97,14 @@ def process_non_vanilla_knife(
     image_url = create_image_url(unformatted_name, asset_domain)
     # insert
     skin_datum = SkinMetadatum(
-        formatted_name,
-        rarity,
-        0,
-        image_url,
-        description,
-        min_float,
-        max_float,
+        formatted_name=formatted_name,
+        condition=condition,
+        rarity=rarity,
+        price=0,
+        image_url=image_url,
+        description=description,
+        min_float=min_float,
+        max_float=max_float,
     )
     metadata[unformatted_name] = skin_datum
 
@@ -97,7 +116,9 @@ def process_sticker_json(
     unformatted_name = remove_skin_name_formatting(formatted_name)
     rarity = get_rarity_from_string(datum["rarity"]["id"])
     image_url = create_image_url(unformatted_name, asset_domain)
-    metadata[unformatted_name] = StickerMetadatum(formatted_name, rarity, 0, image_url)
+    metadata[unformatted_name] = StickerMetadatum(
+        formatted_name=formatted_name, rarity=rarity, price=0, image_url=image_url
+    )
 
 
 def run(api_data: Any, asset_domain: str) -> Result:
@@ -132,14 +153,14 @@ if __name__ == "__main__":
     # output
     with open(f"{OUTPUT_DIRECTORY}/skin_metadata.json", "w+", encoding="utf-8") as f:
         json.dump(
-            {key: asdict(value) for key, value in skin_metadata.items()},
+            {key: value.model_dump() for key, value in skin_metadata.items()},
             f,
             ensure_ascii=False,
             indent=4,
         )
     with open(f"{OUTPUT_DIRECTORY}/sticker_metadata.json", "w+", encoding="utf-8") as f:
         json.dump(
-            {key: asdict(value) for key, value in sticker_metadata.items()},
+            {key: value.model_dump() for key, value in sticker_metadata.items()},
             f,
             ensure_ascii=False,
             indent=4,
